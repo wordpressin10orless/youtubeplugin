@@ -64,7 +64,7 @@ if ($theaction == 'import'){
     $theyoutubekey = get_option( 'youtubeAPIKey' );
     $thechannelid = get_option( 'youtubeChannelID' );
 
-    $videoList = json_decode(file_get_contents('https://www.googleapis.com/youtube/v3/search?order=date&part=snippet&channelId='.$thechannelid.'&maxResults='.'5'.'&key='.$theyoutubekey.''));
+    $videoList = json_decode(file_get_contents('https://www.googleapis.com/youtube/v3/search?order=date&part=snippet&channelId='.$thechannelid.'&maxResults='.'6'.'&key='.$theyoutubekey.''));
 
     //sort through the items and output
     foreach($videoList->items as $item){
@@ -88,7 +88,7 @@ if ($theaction == 'import'){
       if ( $result && ! is_wp_error( $result ) ) {
         $thenewpostID = $result;
         //add the youtube meta data
-        add_post_meta( $thenewpostID, 'videoID', $item->snippet->videoId);
+        add_post_meta( $thenewpostID, 'videoID', $item->id);
         add_post_meta( $thenewpostID, 'publishedAt', $item->snippet->publishedAt);
         add_post_meta( $thenewpostID, 'channelId', $item->snippet->channelId);
         add_post_meta( $thenewpostID, 'ytitle', $item->snippet->title);

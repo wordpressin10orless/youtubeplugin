@@ -187,7 +187,8 @@ class Wp10Test {
 		$this->loader->add_shortcode( 'wp10shorty1', $plugin_public, 'wp10shortyexample' );
 
 		//add shortcode for our Plugin
-		$this->loader->add_shortcode( 'wp10yvidsout', $plugin_public, 'wp10viddisplay' );
+		$this->loader->add_shortcode( 'wp10yvidsout', $plugin_public, 'wp10viddisplay' ); //grid display
+		$this->loader->add_shortcode( 'wp10ydisplaybox', $plugin_public, 'wp10displaybox' ); //display the requested video
 
 
 	}
