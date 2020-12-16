@@ -31,6 +31,11 @@ class Wp10Test_Activator {
 	 */
 	public static function activate() {
 
+		//create a new cronjob
+		if (! wp_next_scheduled('wp10vidupdater')){
+			wp_schedule_event( time(), 'daily', 'wp10vidupdater');
+		}
+
 	}
 
 }

@@ -106,20 +106,96 @@ class Wp10Test_Public {
 
 //output video shortcode function
 public function wp10viddisplay(){
+	
+	
+	
 	//output the videos
 	$thepostcount = get_option( 'ypostcount' ); //gathered post count from settings
+	$allWPVidPosts = get_posts( array('post_type' => 'wp10yvids', 'numberposts' => 2500, 'order' => 'ASC') );
 
-	$allWPVidPosts = get_posts( array('post_type' => 'wp10yvids', 'numberposts' => $thepostcount, 'order' => 'ASC') );
-	//loop through and delete all the posts
-	echo ('<div class="grid-container">');
-	foreach ($allWPVidPosts as $eachpost){
-		echo ('<div class="grid-item">');
-		//print_r($eachpost->videoID->videoId);
-		echo ('<p style="font-size: 18px;">' . $eachpost->ytitle . '</p>');
-		echo ('<a target="_blank" href="http://localhost/seolocal/watch/?vid=' . $eachpost->videoID->videoId . '&oid=' . $eachpost->ID . '"><img src="' . $eachpost->imageresmed . '" /></a>');
-		echo ('</div>');
+
+	//new variables for higher count ouput
+	$numVids = count($allWPVidPosts); //tells us how many videos we have
+	$eachSix = 0; //start a new batch of 6 grid videos
+	$newGrid = 1; //keeps track of grid outputted into our page
+	$newFirst = true; //tells us if this is the FIRST item in a grid
+
+
+
+	//check how many videos we have
+	if ($numVids <= 6){
+		//loop through and delete all the posts
+		echo ('<div class="grid-container">');
+		foreach ($allWPVidPosts as $eachpost){
+			echo ('<div class="grid-item">');
+			//print_r($eachpost->videoID->videoId);
+			echo ('<p style="font-size: 18px;">' . $eachpost->ytitle . '</p>');
+			echo ('<a target="_blank" href="http://localhost/seolocal/watch/?vid=' . $eachpost->videoID->videoId . '&oid=' . $eachpost->ID . '"><img src="' . $eachpost->imageresmed . '" /></a>');
+			echo ('</div>');
+		}
+		echo('</div>');
+	} else {
+		//output the JS
+		echo('
+		<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+		');
+
+		echo('
+		<script>
+
+		var vidCount = 2;
+
+		function showMoreVids(){
+			try{
+				$("#gridvid"+vidCount).fadeIn();
+			} catch {
+
+			}
+			//up the counter
+			vidCount = vidCount + 1;
+		}
+
+		</script>
+		');
+
+
+		//we have MORE than 6 videos so do this instead
+		foreach ($allWPVidPosts as $eachpost){
+			
+			//this is a new set of videos so create a new HIDDEN grid container
+			if ($eachSix == 0){
+				if($newFirst == true){
+					//this is the FIRST GRID CONTAINER being outputted
+					echo ('<div class="grid-container">');
+					$newFirst = false;
+				} else {
+					echo ('<div class="grid-container" style="display:none;" id="gridvid' . $newGrid . '">');
+				}
+			}
+
+			//now build the video as normal
+			echo ('<div class="grid-item">');
+			//print_r($eachpost->videoID->videoId);
+			echo ('<p style="font-size: 18px;">' . $eachpost->ytitle . '</p>');
+			echo ('<a target="_blank" href="http://localhost/seolocal/watch/?vid=' . $eachpost->videoID->videoId . '&oid=' . $eachpost->ID . '"><img src="' . $eachpost->imageresmed . '" /></a>');
+			echo ('</div>');
+
+			//update the eachsix
+			$eachSix += 1;
+
+			//check for eachsix being equal to 6
+			if ($eachSix == 6){
+				//we need to create a new container
+				echo('</div>');
+				$eachSix = 0;
+				$newGrid += 1;
+			}
+
+		}
+		echo('</div>');
 	}
-	echo('</div>');
+
+	echo('<br><center><button type="button" onclick="showMoreVids()" class="btn btn-primary">Load More Vids</button></center>');
 }
 
 //display requested video in large box
@@ -152,22 +228,51 @@ public function wp10displaybox(){
 		<!-- JS Swapper -->
 		<script>
 
-			setTimeout(function() {
-				$('#thetopvid').fadeIn();}, 5000);
+			var theseconds = <?php echo get_option( 'adskipseconds' ) . '000'; ?>;
 
 			setTimeout(function() {
-				$('#adunit').fadeOut();}, 5000);
+				$('#thetopvid').fadeIn();}, 500000);
+
+			setTimeout(function() {
+				$('#adunit').fadeOut();
+				$('#advid').attr("src", "about:blank");
+				}, 500000);
+
+			setTimeout(function() {
+				$('#theskip').fadeIn();}, theseconds);
+
+			function skipper(){
+				$('#thetopvid').fadeIn();
+				$('#adunit').fadeOut();
+				$('#advid').attr("src", "about:blank");
+			}
 
 		</script>
 
 		<div id="adunit">
-			<iframe width="560" height="315" src="https://www.youtube.com/embed/0NON1OVg4Uc?controls=0&autoplay=0&rel=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width:100%;"></iframe>		
+			
+		<div class="grid-container" style="grid-template-columns: 1fr 1fr;">
+		<div class="grid-item">
+			<iframe width="560" height="315" id="advid" src="https://www.youtube.com/embed/<?php echo get_option( 'advideo' ); ?>?controls=0&autoplay=0&rel=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width:100%;"></iframe>				
+		</div>
+		<div class="grid-item">
+			<p><?php echo get_option( 'adtitle' ); ?></p>
+			<hr>
+			<p><?php echo get_option( 'adbodycopy' ); ?></p>
+			<br>
+			<a target="_blank" href="https://google.com"><button type="button"><?php echo get_option( 'adbuttoncopy' ); ?></button></a>
+			<br>
+			<br>
+			<button type="button" style="display:none;" id="theskip" onclick="skipper()">SKIP AD</button>
+		</div>
+		</div>
+		
 		</div>
 
 
 		<div id="thetopvid" style="display:none;">
 		<h4><?php echo($thetitle); ?></h4>
-		<iframe width="560" height="315" src="https://www.youtube.com/embed/<?php echo($thevid); ?>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/<?php echo($thevid); ?>?controls=0&autoplay=0&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		</div>
 
 		<hr>

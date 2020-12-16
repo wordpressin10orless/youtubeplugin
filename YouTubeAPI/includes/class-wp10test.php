@@ -164,9 +164,14 @@ class Wp10Test {
 		//register our general settings
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_wp10_general_settings' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_wp10_shortcode_settings' );
+		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_wp10_advertiser_settings' );
 
 		//creates a custom post type to hold our videos
 		$this->loader->add_action( 'init', $plugin_admin, 'custom_youtube_api' );
+
+		
+		//add the scheduled event CRON JOBS
+		$this->loader->add_action( 'wp10vidupdater' , $plugin_admin, 'ytwp10videoupdate');
 
 	}
 
@@ -189,7 +194,6 @@ class Wp10Test {
 		//add shortcode for our Plugin
 		$this->loader->add_shortcode( 'wp10yvidsout', $plugin_public, 'wp10viddisplay' ); //grid display
 		$this->loader->add_shortcode( 'wp10ydisplaybox', $plugin_public, 'wp10displaybox' ); //display the requested video
-
 
 	}
 

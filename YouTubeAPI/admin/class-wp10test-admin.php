@@ -147,6 +147,15 @@ public function wp10customfooter() {
 		register_setting( 'wp10shortcodesettings', 'yvidstyletype' );
 	}	
 
+	public function register_wp10_advertiser_settings(){
+		//register the advertiser settings
+		register_setting( 'wp10adsettings', 'advideo' );
+		register_setting( 'wp10adsettings', 'adtitle' );
+		register_setting( 'wp10adsettings', 'adbodycopy' );
+		register_setting( 'wp10adsettings', 'adbuttoncopy' );
+		register_setting( 'wp10adsettings', 'adskipseconds' );
+	}
+
 
 //this function creates our custom post type for videos
 public function custom_youtube_api(){
@@ -203,4 +212,86 @@ public function custom_youtube_api(){
     register_post_type( 'wp10yvids', $args );
 }
 
+public function ytwp10videoupdate(){
+
+	  //first get all the posts
+	  $allWPVidPosts = get_posts( array('post_type' => 'wp10yvids', 'numberposts' => 2500, 'order' => 'ASC') );
+	  $compvids = '';
+	
+	  //first check if there are any videos to update
+	  if (count($allWPVidPosts) == 0){
+		//echo('<h2>There are no videos so click IMPORT first.</h2>');
+	  } else{
+	
+		//we know we have videos so CYCLE THEM
+		foreach ($allWPVidPosts as $eachpost){
+		  if($eachpost->videoID->videoId == ''){
+			//do nothing
+		  } else {
+	
+			//this is a video
+			$compvids = ',' . $compvids . $eachpost->videoID->videoId . ',';
+			
+		  }
+		}
+	
+		//echo ($compvids . '<br><br>');
+	
+		//NOW call in the new videos and compare
+		$theyoutubekey = get_option( 'youtubeAPIKey' );
+		$thechannelid = get_option( 'youtubeChannelID' );
+	
+		$videoList = json_decode(file_get_contents('https://www.googleapis.com/youtube/v3/search?order=date&part=snippet&channelId='.$thechannelid.'&maxResults='.'6'.'&key='.$theyoutubekey.''));
+		
+		
+		//sort through the items and add anything thats new
+		foreach($videoList->items as $item){
+		  //determine if we already have this video
+		  $videxists = strpos($compvids , $item->id->videoId);
+	
+		  //check to see if this video exists
+		  if ($videxists > 0) {
+	
+			//echo ('found' . $videxists . '<br>');
+	
+		  } else {
+	
+			//add the video because IT WAS NOT FOUND IN OUR DATABASE STRING
+				  //INSERT A NEW POST VIDEO
+		  $data = array(
+			'post_title' => $item->snippet->title,
+			'post_content' => $item->snippet->description,
+			'post_category' => array($_POST['uncategorized']),
+			'tags_input' => array($tags),
+			'post_status' => 'publish',
+			'post_type' => 'wp10yvids'
+		  );
+	
+		  //insert this post into the DB and RETRIEVE the ID
+		  $result = wp_insert_post( $data );
+		  //echo ($results);
+	
+		  //capture the ID of the post
+		  if ( $result && ! is_wp_error( $result ) ) {
+			$thenewpostID = $result;
+			//add the youtube meta data
+			add_post_meta( $thenewpostID, 'videoID', $item->id);
+			add_post_meta( $thenewpostID, 'publishedAt', $item->snippet->publishedAt);
+			add_post_meta( $thenewpostID, 'channelId', $item->snippet->channelId);
+			add_post_meta( $thenewpostID, 'ytitle', $item->snippet->title);
+			add_post_meta( $thenewpostID, 'ydescription', $item->snippet->description);
+			add_post_meta( $thenewpostID, 'imageresmed', $item->snippet->thumbnails->medium->url);
+			add_post_meta( $thenewpostID, 'imagereshigh', $item->snippet->thumbnails->high->url);
+	
+		  }
+	
+		  }
+		}
+	
+	
+	  }
+	
+	
+	}
+	
 }

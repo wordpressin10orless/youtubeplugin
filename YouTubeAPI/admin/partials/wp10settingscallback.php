@@ -37,6 +37,46 @@
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
       </div>
+
+
+      <br>
+      <br>
+
+      <div class="alert alert-primary">
+        <h1 class="display-4">Advertiser Settings</h1>
+        <h3>Setup your advertiser settings below.</h3>
+        <hr>
+        <form method="post" action="options.php">
+          <?php
+            settings_fields( 'wp10adsettings' );
+            do_settings_sections( 'wp10adsettings' )
+          ?>
+          <div class="form-group">
+            <label for="adskipseconds">Skip AD After How Many Seconds</label>
+            <input class="form-control" type="number" value="<?php echo get_option( 'adskipseconds' ); ?>" id="adskipseconds" name="adskipseconds">
+          </div>
+          <div class="form-group">
+          <label for="advideo">Advertiser YouTube Video ID:</label>
+          <input type="text" name="advideo" value="<?php echo get_option( 'advideo' ); ?>" class="form-control" id="advideo" placeholder="example: yKeolQxpcgQ">
+          </div>
+          <div class="form-group">
+          <label for="adtitle">AD Title:</label>
+          <input type="text" name="adtitle" value="<?php echo get_option( 'adtitle' ); ?>" class="form-control" id="adtitle" placeholder="">
+          </div>
+          <div class="form-group">
+          <label for="adbodycopy">AD Body Copy:</label>
+          <input type="text" name="adbodycopy" value="<?php echo get_option( 'adbodycopy' ); ?>" class="form-control" id="adbodycopy" placeholder="">
+          </div>
+          <div class="form-group">
+          <label for="adbuttoncopy">AD Button Copy:</label>
+          <input type="text" name="adbuttoncopy" value="<?php echo get_option( 'adbuttoncopy' ); ?>" class="form-control" id="adbuttoncopy" placeholder="">
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg">Save Advertiser Changes</button>
+        </form>
+      </div>
+
+
+
     </div>
     <div class="col">
       <div class="alert alert-success">
