@@ -107,7 +107,7 @@ class Wp10Test_Public {
 //output video shortcode function
 public function wp10viddisplay(){
 	
-	
+	/*
 	
 	//output the videos
 	$thepostcount = get_option( 'ypostcount' ); //gathered post count from settings
@@ -196,6 +196,11 @@ public function wp10viddisplay(){
 	}
 
 	echo('<br><center><button type="button" onclick="showMoreVids()" class="btn btn-primary">Load More Vids</button></center>');
+	*/
+
+	//call to the new function
+	$this->loadbydate();
+
 }
 
 //display requested video in large box
@@ -304,5 +309,127 @@ public function wp10displaybox(){
 	}
 
 }
+
+
+public function loadbydate(){
+	//this function handles loading videos by date RATHER THAN IMPORT NUMBER
+
+	$allWPVidPosts = get_posts( array('post_type' => 'wp10yvids', 'numberposts' => 100) );
+	$vidsOrdered = array(); //holds all our timestamps and video IDs
+	$i = 0; //keeps count of the item we are adding information to
+	$numVids = count($allWPVidPosts); //tells us how many videos we have
+	$eachSix = 0; //start a new batch of 6 grid videos
+	$newGrid = 1; //keeps track of grid outputted into our page
+	$newFirst = true; //tells us if this is the FIRST item in a grid
+
+	//loop through and delete all the posts
+	foreach ($allWPVidPosts as $eachpost){
+	$vidsOrdered[$i] = array();
+
+	//capture the ID of the post and its published at date
+	$sortDate = $eachpost->publishedAt;
+	$strToTimeFormat = strtotime($sortDate);
+	$dateTimeFormat = date('Y-m-d H:i:s', $strToTimeFormat);
+
+	//add this item to our array
+	$vidsOrdered[$i]['datetime'] = $dateTimeFormat;
+	$vidsOrdered[$i]['theID'] = $eachpost->ID;
+
+	//up the count
+	$i++;
+
+	}
+
+	//sort array by TIMESTAMP
+	function date_compare($a, $b){
+	$t1 = strtotime($a['datetime']);
+	$t2 = strtotime($b['datetime']);
+	return $t1 - $t2;
+	}
+
+	usort($vidsOrdered, 'date_compare');
+
+	//now cycle through the database and grab posts by ID with data
+	$icount = count($vidsOrdered);
+	$icount--;
+
+	if (count($vidsOrdered) < 6){
+		//single box of 6 items
+		echo ('<div class="grid-container">');
+		do{
+			$curPOST = get_post($vidsOrdered[$icount]['theID']);
+			echo ('<div class="grid-item">');
+			//print_r($eachpost->videoID->videoId);
+			echo ('<p style="font-size: 18px;">' . $curPOST->ytitle . '</p>');
+			echo ('<a target="_blank" href="http://localhost/seolocal/watch/?vid=' . $curPOST->videoID->videoId . '&oid=' . $curPOST->ID . '"><img src="' . $curPOST->imageresmed . '" /></a>');
+			echo ('</div>');
+			//increment the counter
+			$icount--;
+		} while ($icount > 0);
+		echo('</div>');
+	} else {
+				//output the JS
+				echo('
+				<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+				');
+		
+				echo('
+				<script>
+		
+				var vidCount = 2;
+		
+				function showMoreVids(){
+					try{
+						$("#gridvid"+vidCount).fadeIn();
+					} catch {
+		
+					}
+					//up the counter
+					vidCount = vidCount + 1;
+				}
+		
+				</script>
+				');
+		do{
+		//build multiple boxes and containers
+		$curPOST = get_post($vidsOrdered[$icount]['theID']);
+			
+			//this is a new set of videos so create a new HIDDEN grid container
+			if ($eachSix == 0){
+				if($newFirst == true){
+					//this is the FIRST GRID CONTAINER being outputted
+					echo ('<div class="grid-container">');
+					$newFirst = false;
+				} else {
+					echo ('<div class="grid-container" style="display:none;" id="gridvid' . $newGrid . '">');
+				}
+			}
+
+			//now build the video as normal
+			echo ('<div class="grid-item">');
+			//print_r($eachpost->videoID->videoId);
+			echo ('<p style="font-size: 18px;">' . $curPOST->ytitle . '</p>');
+			echo ('<a target="_blank" href="http://localhost/seolocal/watch/?vid=' . $curPOST->videoID->videoId . '&oid=' . $curPOST->ID . '"><img src="' . $curPOST->imageresmed . '" /></a>');
+			echo ('</div>');
+
+			//update the eachsix
+			$eachSix += 1;
+
+			//check for eachsix being equal to 6
+			if ($eachSix == 6){
+				//we need to create a new container
+				echo('</div>');
+				$eachSix = 0;
+				$newGrid += 1;
+			}
+
+			//increment the counter
+			$icount--;
+		} while ($icount > 0);
+		echo('</div>');
+		}
+		echo('<br><center><button type="button" onclick="showMoreVids()" class="btn btn-primary">Load More Vids</button></center>');
+	}
+
 
 }

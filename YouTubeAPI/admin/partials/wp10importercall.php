@@ -255,3 +255,44 @@ if ($blnImport == true){
 
 
 ?>
+
+
+<?php
+/*
+$allWPVidPosts = get_posts( array('post_type' => 'wp10yvids', 'numberposts' => 100) );
+$vidsOrdered = array(); //holds all our timestamps and video IDs
+$i = 0; //keeps count of the item we are adding information to
+
+//loop through and delete all the posts
+foreach ($allWPVidPosts as $eachpost){
+  $vidsOrdered[$i] = array();
+
+  //capture the ID of the post and its published at date
+  $sortDate = $eachpost->publishedAt;
+  $strToTimeFormat = strtotime($sortDate);
+  $dateTimeFormat = date('Y-m-d H:i:s', $strToTimeFormat);
+
+  //add this item to our array
+  $vidsOrdered[$i]['datetime'] = $dateTimeFormat;
+  $vidsOrdered[$i]['theID'] = $eachpost->ID;
+
+  //up the count
+  $i++;
+
+}
+
+print_r($vidsOrdered);
+echo('<br><br><br><br><br>');
+
+//sort array by TIMESTAMP
+function date_compare($a, $b){
+  $t1 = strtotime($a['datetime']);
+  $t2 = strtotime($b['datetime']);
+  return $t1 - $t2;
+}
+usort($vidsOrdered, 'date_compare');
+
+//after the sort
+print_r($vidsOrdered);
+*/
+?>
